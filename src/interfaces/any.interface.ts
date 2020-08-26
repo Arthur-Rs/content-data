@@ -1,5 +1,5 @@
 /* eslint-disable semi */
-export default interface IContent{
+export default interface IAnyObject{
   [key:string]:any
 }
 

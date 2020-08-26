@@ -1,7 +1,34 @@
-import ContentTypes from '../interfaces/types.interface'
+import { getArray, getNumber, getObject, getString } from './parses'
+
 interface IGetType{
-  type:ContentTypes
+  type:string
   value:string
+}
+
+function getByDinamic(value:string):any {
+
+  const numberExp = /^\d+(?:\. \d+)?$/
+  const stringExp = /^\"|^\'.\"$|\'$/
+  const arrayExp = /^\[|^\(.\]$|\⁾$/
+  const objExp = /^\{.|\}$/
+
+  if(stringExp.test(value)){
+    return getString(value)
+  }
+
+  if(numberExp.test(value)){
+    return getNumber(value)
+  }
+
+  if(arrayExp.test(value)){
+    return getArray(value)
+  }
+
+  if(objExp.test(value)){
+    return getObject(value)
+  }
+
+  return getString(value)
 }
 
 function getByType({type, value}:IGetType): string | number | Array<any>{
@@ -30,21 +57,5 @@ function getByType({type, value}:IGetType): string | number | Array<any>{
   return currentValue
 }
 
-function getString(value: string):string {
-  return value.toString().trim();
-}
 
-function getNumber(value: string):number {
-  return Number(value);
-}
-
-function getArray(value: string):any[] {
-  const content = value.replace(/\[|\]/g, '');
-  const arr = content.split(',');
-  return arr;
-}
-
-
-export {
-  getString, getArray, getNumber,getByType
-};
+export { getByType, getByDinamic };
