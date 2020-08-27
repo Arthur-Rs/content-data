@@ -1,15 +1,10 @@
-import { createReadStream, createWriteStream } from 'fs';
-import {resolve} from 'path'
+import { createReadStream } from 'fs';
 
 import { readHeader } from './utils/header';
 import { getByType, getByDinamic } from './utils/processing'
-import IAnyObject from './interfaces/any.interface';
-import console from 'console';
+import { IAnyObject } from './interfaces/other';
+import { IReadContent } from './interfaces/ready_functions'
 
-interface IReadContent{
-  contentData:object
-  contentHeader:object
-} 
 
 const readContent = async <Types> (path: string):Promise<IReadContent> => {
   const rd = createReadStream(path);
@@ -53,10 +48,80 @@ const readContent = async <Types> (path: string):Promise<IReadContent> => {
   return {contentData, contentHeader}
 };
 
-export { readContent };
+const getVariable = async<Type>(path: string, variable: string):Promise<any> => {
+  const rd = createReadStream(path);
+  let variableContent:Type | any;
 
-readContent(resolve(__dirname, 'data.cd')).then(({contentData, contentHeader})=>{
-  console.log(contentData)
-});
+  await new Promise(resolve => {
+      rd.on('data', (data:string) => {
+      const lines = data.toString().trim().split(/\n|;/);
+
+      lines.forEach((content:string) => {
+        
+        if(
+          content[0] === '#' || content.length < 1 || content[0] === '@'){
+          return
+        }
+
+        const [name, value] = content.split(/=/);
+        if(content.includes('->')){
+          const [type, key] = name.split('->');
+          
+          if(key === variable){
+            variableContent = value
+            resolve()
+          }
+        }
+        
+        if(name === variable){
+          variableContent = value
+          resolve()
+        }
+      });
+    });
+
+    rd.on('end', ()=>{
+      rd.close()
+      resolve()
+    })
+  })
+
+  return variableContent
+}
+
+const getHeader = async<Type>(path: string, variable: string):Promise<any> => {
+  const rd = createReadStream(path);
+  let variableContent:Type | any;
+
+  await new Promise(resolve => {
+      rd.on('data', (data:string) => {
+      const lines = data.toString().trim().split(/\n|;/);
+
+      lines.forEach((content:string) => {
+        if (content[0] !== '@') {
+          return
+        }
+
+        const [key, value] = content.replace('@', '').split('=')
+
+        if(key === variable){
+          variableContent = value
+          resolve()
+        }
+      });
+    });
+
+    rd.on('end', ()=>{
+      rd.close()
+      resolve()
+    })
+  })
+
+  return variableContent
+}
+
+export { readContent, getVariable, getHeader };
+
+
 
 

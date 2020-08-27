@@ -1,4 +1,4 @@
-import IAnyObject from '../interfaces/any.interface'
+import {IAnyObject} from '../interfaces/other'
 import { getByDinamic } from './processing'
 
 function getObject(value: string): object{
@@ -49,8 +49,6 @@ function getArray(value: string):any[] {
     content = content.replace(_arr, '')
     arrays.push(getArray(_arr))
   }
-
-
 
   const arr = content.split(',')
   const arrWithTypes = arr

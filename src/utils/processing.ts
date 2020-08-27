@@ -1,9 +1,6 @@
-import { getArray, getNumber, getObject, getString } from './parses'
+import { getArray, getNumber, getObject, getString } from './modifiers'
+import { IGetType } from '../interfaces/modifiers'
 
-interface IGetType{
-  type:string
-  value:string
-}
 
 function getByDinamic(value:string):any {
 
